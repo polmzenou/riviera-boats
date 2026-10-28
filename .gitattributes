@@ -1,0 +1,5 @@
+# LF partout : les scripts tournent dans des conteneurs Linux
+* text=auto eol=lf
+*.png binary
+*.ico binary
+*.pdf binary
