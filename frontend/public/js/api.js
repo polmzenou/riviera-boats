@@ -44,10 +44,18 @@ export function h(tag, attrs = {}, ...children) {
 }
 
 const euroFmt = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' });
-export const euro = (n) => euroFmt.format(n);
+const euroRoundFmt = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 });
+export const euro = (n) => (Number.isInteger(n) ? euroRoundFmt : euroFmt).format(n);
 
+const toDate = (iso) => new Date(iso.length === 10 ? `${iso}T00:00:00Z` : iso);
 const dateFmt = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
-export const frDate = (iso) => (iso ? dateFmt.format(new Date(iso.length === 10 ? `${iso}T00:00:00Z` : iso)) : '');
+export const frDate = (iso) => (iso ? dateFmt.format(toDate(iso)) : '');
+
+const monthFmt = new Intl.DateTimeFormat('fr-FR', { month: 'short', timeZone: 'UTC' });
+export function dateParts(iso) {
+  const d = toDate(iso);
+  return { day: d.getUTCDate(), month: monthFmt.format(d).replace('.', '') };
+}
 
 export function todayIso() {
   const d = new Date();
@@ -66,6 +74,7 @@ export function toast(message, type = 'info') {
   setTimeout(() => el.remove(), 4500);
 }
 
-export const BOAT_EMOJI = { voilier: '⛵', catamaran: '⛵', yacht: '🛥️', 'semi-rigide': '🚤', moteur: '🚤' };
+const BOAT_TYPES = ['voilier', 'catamaran', 'yacht', 'semi-rigide', 'moteur'];
+export const boatArt = (type) => `/img/boats/${BOAT_TYPES.includes(type) ? type : 'voilier'}.svg`;
 
 export const STATUS_LABEL = { pending: 'En attente de paiement', paid: 'Payée', cancelled: 'Annulée' };

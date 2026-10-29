@@ -1,11 +1,10 @@
-import { api, h, euro, frDate, todayIso, toast, BOAT_EMOJI } from './api.js';
+import { api, h, euro, frDate, todayIso, toast, boatArt } from './api.js';
 import { initLayout } from './layout.js';
+import { reveal } from './ui.js';
 
 const DAY_MS = 24 * 3600 * 1000;
 const addDays = (iso, n) => new Date(Date.parse(`${iso}T00:00:00Z`) + n * DAY_MS).toISOString().slice(0, 10);
 const daysBetween = (a, b) => Math.round((Date.parse(b) - Date.parse(a)) / DAY_MS);
-
-await initLayout();
 
 const filters = document.getElementById('filters');
 const list = document.getElementById('boat-list');
@@ -18,6 +17,12 @@ const estimate = document.getElementById('estimate');
 const bookError = bookForm.querySelector('.form-error');
 let currentBoat = null;
 
+const skeleton = () => h('div', { class: 'card skeleton', 'aria-hidden': 'true' },
+  h('div', { class: 'sk sk-visual' }), h('div', { class: 'sk sk-line w40' }), h('div', { class: 'sk sk-line w80' }), h('div', { class: 'sk sk-line w60' }));
+list.replaceChildren(...Array.from({ length: 6 }, skeleton));
+
+await initLayout();
+
 const [ports, types] = await Promise.all([api('/api/boats/ports'), api('/api/boats/types')]);
 const typeLabel = Object.fromEntries(types.map((t) => [t.value, t.label]));
 document.getElementById('f-port').append(...ports.map((p) => h('option', { value: p.id }, `${p.city} — ${p.name}`)));
@@ -29,21 +34,24 @@ for (const [key, value] of initial) {
 }
 
 function card(boat) {
-  return h('article', { class: 'card boat-card' },
+  return h('article', { class: 'card boat-card reveal' },
     h('div', { class: `boat-visual t-${boat.type}` },
       h('span', { class: 'city' }, boat.port.city),
-      h('span', { 'aria-hidden': 'true' }, BOAT_EMOJI[boat.type] ?? '⛵')),
+      h('img', { class: 'boat-art', src: boatArt(boat.type), alt: '' })),
     h('div', { class: 'boat-body' },
+      h('p', { class: 'boat-kicker' }, `${typeLabel[boat.type] ?? boat.type} · ${boat.port.name}`),
       h('h3', {}, boat.name),
-      h('p', { class: 'muted' }, `${typeLabel[boat.type] ?? boat.type} · ${boat.port.name}`),
+      h('p', { class: 'boat-desc' }, boat.description),
       h('div', { class: 'specs' },
-        h('span', { class: 'chip' }, `${boat.capacity} pers.`),
-        h('span', { class: 'chip' }, `${boat.lengthM} m`),
-        boat.licenseRequired ? h('span', { class: 'chip warn' }, 'Permis requis') : h('span', { class: 'chip' }, 'Sans permis')),
-      h('p', { class: 'muted' }, boat.description),
+        h('span', { class: 'chip i-people' }, `${boat.capacity} pers.`),
+        h('span', { class: 'chip i-length' }, `${boat.lengthM} m`),
+        boat.licenseRequired
+          ? h('span', { class: 'chip i-license warn' }, 'Permis requis')
+          : h('span', { class: 'chip i-license ok' }, 'Sans permis')),
       h('div', { class: 'boat-foot' },
-        h('span', { class: 'price' }, euro(boat.pricePerDay), h('small', {}, ' / jour')),
-        h('button', { class: 'btn btn-sm', type: 'button', onclick: () => openBooking(boat) }, 'Réserver'))));
+        h('span', { class: 'price' }, euro(boat.pricePerDay), h('small', {}, '/ jour')),
+        h('button', { class: 'btn btn-sm', type: 'button', onclick: () => openBooking(boat) },
+          'Réserver', h('span', { class: 'arrow', 'aria-hidden': 'true' }, '→')))));
 }
 
 async function load() {
@@ -54,7 +62,10 @@ async function load() {
   try {
     const boats = await api(`/api/boats${query}`);
     count.textContent = `${boats.length} bateau${boats.length > 1 ? 'x' : ''} disponible${boats.length > 1 ? 's' : ''}`;
-    list.replaceChildren(...(boats.length ? boats.map(card) : [h('p', { class: 'empty' }, 'Aucun bateau ne correspond à ces critères.')]));
+    list.replaceChildren(...(boats.length
+      ? boats.map(card)
+      : [h('div', { class: 'empty' }, h('strong', {}, 'Aucun bateau ne correspond'), 'Élargissez vos critères ou essayez un autre port.')]));
+    reveal(list);
   } catch (err) {
     toast(err.message, 'error');
   }
@@ -72,12 +83,12 @@ function updateEstimate() {
   const { value: start } = startInput;
   const { value: end } = endInput;
   if (!currentBoat || !start || !end || end < start) {
-    estimate.textContent = 'Choisissez vos dates de départ et de retour.';
+    estimate.replaceChildren(h('span', {}, 'Choisissez vos dates de départ et de retour.'));
     return;
   }
   const days = daysBetween(start, end) + 1;
   estimate.replaceChildren(
-    `${days} jour${days > 1 ? 's' : ''} × ${euro(currentBoat.pricePerDay)} = `,
+    h('span', {}, `${days} jour${days > 1 ? 's' : ''} × ${euro(currentBoat.pricePerDay)}`),
     h('strong', {}, euro(days * currentBoat.pricePerDay)),
   );
 }
@@ -90,9 +101,14 @@ async function openBooking(boat) {
   startInput.value = addDays(today, 7);
   endInput.value = addDays(today, 9);
   bookError.textContent = '';
-  document.getElementById('book-title').textContent = `Réserver « ${boat.name} »`;
+  document.getElementById('book-head').className = `dlg-head t-${boat.type}`;
+  document.getElementById('book-art').src = boatArt(boat.type);
+  document.getElementById('book-port').textContent = `${boat.port.city} · ${boat.port.name}`;
+  document.getElementById('book-title').textContent = boat.name;
   document.getElementById('book-summary').replaceChildren(
-    h('strong', {}, boat.name), ` — ${boat.port.name}, ${boat.port.city} · ${boat.capacity} pers. · ${euro(boat.pricePerDay)} / jour`,
+    h('strong', {}, typeLabel[boat.type] ?? boat.type),
+    ` · ${boat.capacity} pers. · ${boat.lengthM} m · `,
+    h('strong', {}, `${euro(boat.pricePerDay)} / jour`),
   );
   updateEstimate();
 
@@ -102,8 +118,8 @@ async function openBooking(boat) {
   try {
     const { booked } = await api(`/api/bookings/availability/${boat.id}`);
     bookedList.replaceChildren(...(booked.length
-      ? booked.map((r) => h('li', {}, `du ${frDate(r.startDate)} au ${frDate(r.endDate)}`))
-      : [h('li', {}, 'Aucune — le bateau est libre.')]));
+      ? booked.map((r) => h('li', {}, `${frDate(r.startDate)} → ${frDate(r.endDate)}`))
+      : [h('li', { class: 'free' }, 'Aucune date réservée : le bateau est libre')]));
   } catch {
     bookedList.replaceChildren(h('li', {}, 'Disponibilités indisponibles pour le moment.'));
   }

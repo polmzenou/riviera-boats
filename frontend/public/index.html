@@ -6,58 +6,191 @@
   <title>RivieraBoats — Location de bateaux sur la Côte d'Azur</title>
   <meta name="description" content="Louez un voilier, un catamaran ou un yacht à Nice, Cannes, Antibes, Saint-Tropez, Monaco et Menton.">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="/fonts/playfair.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="/css/style.css">
   <script type="module" src="/js/home.js"></script>
 </head>
-<body>
+<body class="page-home">
   <header class="site-header">
     <div class="inner">
-      <a class="brand" href="/">⚓ Riviera<span>Boats</span></a>
+      <a class="brand" href="/">
+        <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M15.5 6.5V21.5H8.5Z" fill="currentColor"/><path d="M17.5 10V21.5H23.5Z" fill="currentColor" fill-opacity=".65"/><path d="M8 24.5Q16 27.5 24 24.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        Riviera<span>Boats</span>
+      </a>
       <nav class="nav" aria-label="Navigation principale"></nav>
       <div class="user-box"></div>
     </div>
   </header>
 
   <section class="hero">
+    <div class="hero-sun" aria-hidden="true"></div>
+    <img class="hero-boat" src="/img/boats/voilier.svg" alt="">
     <div class="inner">
-      <div class="waves" aria-hidden="true">⛵</div>
-      <h1>Prenez le large sur la Côte d'Azur</h1>
-      <p>Voiliers, catamarans, semi-rigides et yachts avec skipper, de Menton à Saint-Tropez. Réservez en ligne en quelques clics.</p>
-      <div class="actions">
-        <a class="btn btn-sun" href="/boats.html" id="cta-fleet">Découvrir la flotte</a>
-        <a class="btn btn-light" href="/login.html#register" id="cta-register">Créer un compte</a>
-      </div>
+      <p class="eyebrow">Location de bateaux · Côte d'Azur</p>
+      <h1>La Riviera, <em>vue du large.</em></h1>
+      <p class="lead">Voiliers, catamarans, day-boats et yachts avec équipage, de Menton à Saint-Tropez. Choisissez votre port, on s'occupe du reste.</p>
+      <form class="search" id="search" action="/boats.html" method="get" role="search">
+        <label class="search-field">
+          <span>Port de départ</span>
+          <select name="port">
+            <option value="">Tous les ports</option>
+            <option value="1">Nice</option>
+            <option value="2">Cannes</option>
+            <option value="3">Antibes</option>
+            <option value="4">Saint-Tropez</option>
+            <option value="5">Monaco</option>
+            <option value="6">Menton</option>
+          </select>
+        </label>
+        <label class="search-field">
+          <span>Type de bateau</span>
+          <select name="type">
+            <option value="">Tous les types</option>
+            <option value="voilier">Voilier</option>
+            <option value="catamaran">Catamaran</option>
+            <option value="yacht">Yacht</option>
+            <option value="semi-rigide">Semi-rigide</option>
+            <option value="moteur">Bateau à moteur</option>
+          </select>
+        </label>
+        <label class="search-field">
+          <span>Passagers</span>
+          <select name="minCapacity">
+            <option value="">Peu importe</option>
+            <option value="2">2 et plus</option>
+            <option value="4">4 et plus</option>
+            <option value="6">6 et plus</option>
+            <option value="8">8 et plus</option>
+            <option value="10">10 et plus</option>
+          </select>
+        </label>
+        <button class="btn btn-gold btn-lg" type="submit">Rechercher <span class="arrow" aria-hidden="true">→</span></button>
+      </form>
+      <ul class="hero-facts">
+        <li>6 ports de Menton à Saint-Tropez</li>
+        <li>Avec ou sans permis</li>
+        <li>Annulation gratuite avant le départ</li>
+      </ul>
     </div>
+    <a class="scroll-hint" href="#ports" aria-label="Découvrir nos ports"></a>
+    <div class="waves" aria-hidden="true"><span class="wave w1"></span><span class="wave w2"></span><span class="wave w3"></span></div>
   </section>
 
   <main>
-    <section class="section">
-      <h2>Nos ports d'attache</h2>
-      <p class="muted">Six ports, une quarantaine de milles de côte entre l'Italie et l'Estérel.</p>
-      <div class="grid">
-        <article class="card port-card"><h3>Nice</h3><p class="muted">Port Lympia — la Baie des Anges et Villefranche.</p></article>
-        <article class="card port-card"><h3>Cannes</h3><p class="muted">Vieux-Port — cap sur les îles de Lérins.</p></article>
-        <article class="card port-card"><h3>Antibes</h3><p class="muted">Port Vauban — le tour du Cap et Juan-les-Pins.</p></article>
-        <article class="card port-card"><h3>Saint-Tropez</h3><p class="muted">Le golfe et la plage de Pampelonne.</p></article>
-        <article class="card port-card"><h3>Monaco</h3><p class="muted">Port Hercule — au pied du Rocher.</p></article>
-        <article class="card port-card"><h3>Menton</h3><p class="muted">Garavan — à deux pas de la frontière italienne.</p></article>
+    <section class="section" id="ports">
+      <div class="section-head reveal">
+        <div>
+          <p class="eyebrow">Nos ports d'attache</p>
+          <h2>Six escales, <em>une seule côte</em></h2>
+        </div>
+        <p>Une quarantaine de milles entre l'Italie et l'Estérel. Chaque port a sa flotte, et les plus belles criques sont à portée d'étrave.</p>
+      </div>
+      <div class="ports">
+        <a class="port p-nice reveal" href="/boats.html?port=1">
+          <span class="coords">43°41′ N · 7°17′ E</span><span class="num">01</span>
+          <h3>Nice</h3>
+          <p>Port Lympia, la Baie des Anges et Villefranche.</p>
+          <span class="go">Voir les bateaux</span>
+        </a>
+        <a class="port p-cannes reveal" href="/boats.html?port=2">
+          <span class="coords">43°33′ N · 7°01′ E</span><span class="num">02</span>
+          <h3>Cannes</h3>
+          <p>Le Vieux-Port, cap sur les îles de Lérins.</p>
+          <span class="go">Voir les bateaux</span>
+        </a>
+        <a class="port p-antibes reveal" href="/boats.html?port=3">
+          <span class="coords">43°35′ N · 7°08′ E</span><span class="num">03</span>
+          <h3>Antibes</h3>
+          <p>Port Vauban, le tour du Cap et Juan-les-Pins.</p>
+          <span class="go">Voir les bateaux</span>
+        </a>
+        <a class="port p-tropez reveal" href="/boats.html?port=4">
+          <span class="coords">43°16′ N · 6°38′ E</span><span class="num">04</span>
+          <h3>Saint-Tropez</h3>
+          <p>Le golfe et la plage de Pampelonne.</p>
+          <span class="go">Voir les bateaux</span>
+        </a>
+        <a class="port p-monaco reveal" href="/boats.html?port=5">
+          <span class="coords">43°44′ N · 7°25′ E</span><span class="num">05</span>
+          <h3>Monaco</h3>
+          <p>Port Hercule, au pied du Rocher.</p>
+          <span class="go">Voir les bateaux</span>
+        </a>
+        <a class="port p-menton reveal" href="/boats.html?port=6">
+          <span class="coords">43°47′ N · 7°31′ E</span><span class="num">06</span>
+          <h3>Menton</h3>
+          <p>Garavan, à deux pas de la frontière italienne.</p>
+          <span class="go">Voir les bateaux</span>
+        </a>
       </div>
     </section>
 
     <section class="section">
-      <h2>Comment ça marche ?</h2>
-      <div class="grid steps">
-        <article class="card step"><h3>Créez votre compte</h3><p class="muted">Gratuit, en moins d'une minute.</p></article>
-        <article class="card step"><h3>Choisissez un bateau</h3><p class="muted">Filtrez par port, type, capacité et budget.</p></article>
-        <article class="card step"><h3>Réservez et payez</h3><p class="muted">Paiement sécurisé, annulation gratuite avant le départ.</p></article>
+      <div class="section-head reveal">
+        <div>
+          <p class="eyebrow">La flotte</p>
+          <h2>Un bateau <em>pour chaque envie</em></h2>
+        </div>
+        <p>Du petit semi-rigide sans permis au yacht avec équipage : filtrez par type, capacité et budget.</p>
+      </div>
+      <div class="types">
+        <a class="type-card reveal" href="/boats.html?type=voilier">
+          <div class="art t-voilier"><img src="/img/boats/voilier.svg" alt=""></div>
+          <div class="body"><h3>Voilier</h3><p>Le charme de la voile, en famille ou entre amis.</p></div>
+        </a>
+        <a class="type-card reveal" href="/boats.html?type=catamaran">
+          <div class="art t-catamaran"><img src="/img/boats/catamaran.svg" alt=""></div>
+          <div class="body"><h3>Catamaran</h3><p>Stable et spacieux, idéal pour les mouillages.</p></div>
+        </a>
+        <a class="type-card reveal" href="/boats.html?type=yacht">
+          <div class="art t-yacht"><img src="/img/boats/yacht.svg" alt=""></div>
+          <div class="body"><h3>Yacht</h3><p>Avec équipage, pour une journée d'exception.</p></div>
+        </a>
+        <a class="type-card reveal" href="/boats.html?type=semi-rigide">
+          <div class="art t-semi-rigide"><img src="/img/boats/semi-rigide.svg" alt=""></div>
+          <div class="body"><h3>Semi-rigide</h3><p>Rapide et maniable, certains sans permis.</p></div>
+        </a>
+        <a class="type-card reveal" href="/boats.html?type=moteur">
+          <div class="art t-moteur"><img src="/img/boats/moteur.svg" alt=""></div>
+          <div class="body"><h3>Bateau à moteur</h3><p>Des day-boats confortables pour longer la côte.</p></div>
+        </a>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head reveal">
+        <div>
+          <p class="eyebrow">Comment ça marche</p>
+          <h2>Trois étapes <em>jusqu'au large</em></h2>
+        </div>
+      </div>
+      <div class="steps">
+        <article class="step reveal"><h3>Créez votre compte</h3><p class="muted">Gratuit, en moins d'une minute.</p></article>
+        <article class="step reveal"><h3>Choisissez un bateau</h3><p class="muted">Filtrez par port, type, capacité et budget, puis vérifiez ses disponibilités.</p></article>
+        <article class="step reveal"><h3>Réservez et payez</h3><p class="muted">Paiement sécurisé, annulation gratuite avant le départ.</p></article>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="cta reveal">
+        <div>
+          <p class="eyebrow">Prêt à embarquer ?</p>
+          <h2>Le large <em>n'attend que vous.</em></h2>
+          <p>Comparez la flotte, choisissez vos dates et partez dès la semaine prochaine.</p>
+        </div>
+        <div class="actions">
+          <a class="btn btn-gold btn-lg" href="/boats.html" id="cta-fleet">Découvrir la flotte <span class="arrow" aria-hidden="true">→</span></a>
+          <a class="btn btn-outline-light btn-lg" href="/login.html#register" id="cta-register">Créer un compte</a>
+        </div>
       </div>
     </section>
   </main>
 
   <footer class="site-footer">
     <div class="inner">
-      <span>© 2026 RivieraBoats — projet « Dév avec Docker »</span>
+      <span class="footer-brand">Riviera<em>Boats</em></span>
       <span>Nice · Cannes · Antibes · Saint-Tropez · Monaco · Menton</span>
+      <span>© 2026 · projet « Dév avec Docker »</span>
     </div>
   </footer>
 </body>

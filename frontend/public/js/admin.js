@@ -1,5 +1,6 @@
 import { api, h, euro, frDate, toast, STATUS_LABEL } from './api.js';
 import { initLayout } from './layout.js';
+import { confirmDialog, countUp, initials } from './ui.js';
 
 const me = await initLayout();
 
@@ -17,9 +18,10 @@ let users = [];
 
 async function loadUsers() {
   ({ users } = await api('/api/auth/users'));
+  countUp(document.getElementById('kpi-users'), users.length);
   document.getElementById('users-body').replaceChildren(...users.map((u) => h('tr', {},
     h('td', {}, u.id),
-    h('td', {}, u.fullName),
+    h('td', {}, h('span', { class: 'person' }, h('span', { class: 'avatar', 'aria-hidden': 'true' }, initials(u.fullName)), u.fullName)),
     h('td', {}, u.email),
     h('td', {}, u.role === 'admin' ? h('span', { class: 'badge-admin' }, 'admin') : 'client'),
     h('td', {}, frDate(u.createdAt)),
@@ -30,7 +32,13 @@ async function loadUsers() {
 }
 
 async function deleteUser(u) {
-  if (!window.confirm(`Supprimer le compte de ${u.fullName} (${u.email}) et ses réservations ?`)) return;
+  const confirmed = await confirmDialog({
+    title: `Supprimer ${u.fullName} ?`,
+    message: `Le compte ${u.email} et toutes ses réservations seront effacés.`,
+    confirmLabel: 'Supprimer',
+    danger: true,
+  });
+  if (!confirmed) return;
   try {
     await api(`/api/auth/users/${u.id}`, { method: 'DELETE' });
     toast(`Compte de ${u.fullName} supprimé.`, 'success');
@@ -47,9 +55,10 @@ document.getElementById('n-port').append(...ports.map((p) => h('option', { value
 
 async function loadBoats() {
   const boats = await api('/api/boats');
+  countUp(document.getElementById('kpi-boats'), boats.length);
   document.getElementById('boats-body').replaceChildren(...boats.map((b) => h('tr', {},
     h('td', {}, b.id),
-    h('td', {}, b.name),
+    h('td', {}, h('strong', {}, b.name)),
     h('td', {}, typeLabel[b.type] ?? b.type),
     h('td', {}, b.port.city),
     h('td', {}, b.capacity),
@@ -58,7 +67,13 @@ async function loadBoats() {
 }
 
 async function deleteBoat(b) {
-  if (!window.confirm(`Retirer « ${b.name} » du catalogue ?`)) return;
+  const confirmed = await confirmDialog({
+    title: `Retirer « ${b.name} » ?`,
+    message: 'Le bateau ne sera plus proposé à la réservation.',
+    confirmLabel: 'Retirer du catalogue',
+    danger: true,
+  });
+  if (!confirmed) return;
   try {
     await api(`/api/boats/${b.id}`, { method: 'DELETE' });
     toast(`« ${b.name} » retiré du catalogue.`, 'success');
@@ -94,11 +109,13 @@ boatForm.addEventListener('submit', async (event) => {
 
 async function loadBookings() {
   const { bookings } = await api('/api/bookings?scope=all');
+  countUp(document.getElementById('kpi-bookings'), bookings.filter((b) => b.status !== 'cancelled').length);
+  countUp(document.getElementById('kpi-revenue'), bookings.filter((b) => b.status === 'paid').reduce((sum, b) => sum + b.totalPrice, 0), (n) => euro(Math.round(n)));
   const emailOf = Object.fromEntries(users.map((u) => [u.id, u.email]));
   document.getElementById('bookings-body').replaceChildren(...bookings.map((b) => h('tr', {},
     h('td', {}, b.id),
     h('td', {}, emailOf[b.userId] ?? `#${b.userId}`),
-    h('td', {}, `${b.boatName} (${b.portName})`),
+    h('td', {}, h('strong', {}, b.boatName), ` · ${b.portName}`),
     h('td', {}, `${frDate(b.startDate)} → ${frDate(b.endDate)}`),
     h('td', {}, euro(b.totalPrice)),
     h('td', {}, h('span', { class: `status status-${b.status}` }, STATUS_LABEL[b.status])))));

@@ -1,4 +1,5 @@
 import { api, h } from './api.js';
+import { initials, reveal } from './ui.js';
 
 const LINKS = [
   { href: '/', label: 'Accueil', public: true },
@@ -8,7 +9,23 @@ const LINKS = [
   { href: '/admin.html', label: 'Admin', admin: true },
 ];
 
+function setupHeader() {
+  const header = document.querySelector('.site-header');
+  const toggle = h('button', { class: 'nav-toggle', type: 'button', 'aria-label': 'Menu', 'aria-expanded': 'false' }, h('span', { class: 'bars' }));
+  toggle.addEventListener('click', () => {
+    toggle.setAttribute('aria-expanded', String(header.classList.toggle('nav-open')));
+  });
+  header.querySelector('.nav').before(toggle);
+
+  const onScroll = () => header.classList.toggle('is-scrolled', window.scrollY > 24);
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive: true });
+}
+
 export async function initLayout() {
+  setupHeader();
+  reveal();
+
   let user = null;
   try {
     const data = await api('/api/auth/me', { redirectOn401: false });
@@ -33,12 +50,13 @@ export async function initLayout() {
       window.location.assign('/');
     });
     box.replaceChildren(...[
+      h('span', { class: 'avatar', 'aria-hidden': 'true' }, initials(user.fullName)),
       h('span', { class: 'who' }, user.fullName),
       user.role === 'admin' ? h('span', { class: 'badge-admin' }, 'admin') : null,
       logout,
     ].filter(Boolean));
   } else {
-    box.replaceChildren(h('a', { class: 'btn btn-sun btn-sm', href: '/login.html' }, 'Connexion'));
+    box.replaceChildren(h('a', { class: 'btn btn-gold btn-sm', href: '/login.html' }, 'Connexion'));
   }
   return user;
 }
