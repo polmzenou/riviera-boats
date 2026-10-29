@@ -37,7 +37,7 @@ function card(boat) {
   return h('article', { class: 'card boat-card reveal' },
     h('div', { class: `boat-visual t-${boat.type}` },
       h('span', { class: 'city' }, boat.port.city),
-      h('img', { class: 'boat-art', src: boatArt(boat.type), alt: '' })),
+      h('img', { class: 'boat-art', src: boatArt(boat.type), alt: '', loading: 'lazy' })),
     h('div', { class: 'boat-body' },
       h('p', { class: 'boat-kicker' }, `${typeLabel[boat.type] ?? boat.type} · ${boat.port.name}`),
       h('h3', {}, boat.name),

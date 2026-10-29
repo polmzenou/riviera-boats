@@ -75,6 +75,6 @@ export function toast(message, type = 'info') {
 }
 
 const BOAT_TYPES = ['voilier', 'catamaran', 'yacht', 'semi-rigide', 'moteur'];
-export const boatArt = (type) => `/img/boats/${BOAT_TYPES.includes(type) ? type : 'voilier'}.svg`;
+export const boatArt = (type) => `/img/boats/${BOAT_TYPES.includes(type) ? type : 'voilier'}.webp`;
 
 export const STATUS_LABEL = { pending: 'En attente de paiement', paid: 'Payée', cancelled: 'Annulée' };

@@ -118,3 +118,7 @@ scripts/                  génération des secrets, test de fumée
 docs/RAPPORT.md           rapport du projet
 docs/DEMO.md              déroulé de la démonstration
 ```
+
+## Crédits
+
+Les photos de bateaux (`frontend/public/img/boats/`) proviennent de Wikimedia Commons, sous licences CC BY et CC BY-SA ; auteurs et liens dans [CREDITS.txt](frontend/public/img/boats/CREDITS.txt). Polices sous SIL OFL 1.1 ([OFL.txt](frontend/public/fonts/OFL.txt)).

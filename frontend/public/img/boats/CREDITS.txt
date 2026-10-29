@@ -1,0 +1,26 @@
+Photos issues de Wikimedia Commons, redimensionnées et converties en WebP.
+
+voilier.webp
+  « 20090731 korinthos canal12 » par Jean Housen, CC BY-SA 3.0
+  https://commons.wikimedia.org/wiki/File:20090731_korinthos_canal12.jpg
+  https://creativecommons.org/licenses/by-sa/3.0
+
+catamaran.webp
+  « Bavaria-yachts-nautitech-40-open » par BavariaYachtbau, CC BY-SA 4.0
+  https://commons.wikimedia.org/wiki/File:Bavaria-yachts-nautitech-40-open.jpg
+  https://creativecommons.org/licenses/by-sa/4.0
+
+yacht.webp
+  « Lady beatrice devant monaco » par Abxbay, CC BY-SA 3.0
+  https://commons.wikimedia.org/wiki/File:Lady_beatrice_devant_monaco.JPG
+  https://creativecommons.org/licenses/by-sa/3.0
+
+semi-rigide.webp
+  « Kids Camp 2015 Day 1 » par Isles Yacht Club, CC BY 2.0
+  https://commons.wikimedia.org/wiki/File:Kids_Camp_2015_Day_1_(18441743264).jpg
+  https://creativecommons.org/licenses/by/2.0
+
+moteur.webp
+  « 20190721 259 maastricht » par Jean Housen, CC BY-SA 4.0
+  https://commons.wikimedia.org/wiki/File:20190721_259_maastricht.jpg
+  https://creativecommons.org/licenses/by-sa/4.0
