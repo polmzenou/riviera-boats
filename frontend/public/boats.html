@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>La flotte — RivieraBoats</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/css/style.css">
+  <script type="module" src="/js/boats.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="inner">
+      <a class="brand" href="/">⚓ Riviera<span>Boats</span></a>
+      <nav class="nav" aria-label="Navigation principale"></nav>
+      <div class="user-box"></div>
+    </div>
+  </header>
+
+  <main>
+    <div class="page-head">
+      <div>
+        <h1>La flotte</h1>
+        <p class="muted" id="count">Chargement…</p>
+      </div>
+    </div>
+
+    <form id="filters" class="card filters">
+      <div class="field">
+        <label for="f-port">Port</label>
+        <select id="f-port" name="port"><option value="">Tous les ports</option></select>
+      </div>
+      <div class="field">
+        <label for="f-type">Type</label>
+        <select id="f-type" name="type"><option value="">Tous les types</option></select>
+      </div>
+      <div class="field">
+        <label for="f-cap">Passagers (min.)</label>
+        <input id="f-cap" name="minCapacity" type="number" min="1" max="50" placeholder="ex. 6">
+      </div>
+      <div class="field">
+        <label for="f-price">Budget / jour (max.)</label>
+        <input id="f-price" name="maxPrice" type="number" min="1" step="10" placeholder="ex. 500">
+      </div>
+      <div class="field">
+        <button class="btn btn-ghost" type="reset">Réinitialiser</button>
+      </div>
+    </form>
+
+    <div id="boat-list" class="grid" aria-live="polite"></div>
+  </main>
+
+  <dialog id="book-dialog" aria-labelledby="book-title">
+    <form id="book-form" novalidate>
+      <div class="dlg-head"><h2 id="book-title">Réserver</h2></div>
+      <div class="dlg-body">
+        <div class="summary" id="book-summary"></div>
+        <div class="row">
+          <div class="field">
+            <label for="b-start">Départ</label>
+            <input id="b-start" name="startDate" type="date" required>
+          </div>
+          <div class="field">
+            <label for="b-end">Retour</label>
+            <input id="b-end" name="endDate" type="date" required>
+          </div>
+        </div>
+        <p class="hint" id="booked-title">Dates déjà réservées :</p>
+        <ul class="booked-list" id="booked-list"></ul>
+        <p class="summary" id="estimate"></p>
+        <p class="form-error" role="alert"></p>
+        <div class="dlg-foot">
+          <button type="button" class="btn btn-ghost" id="book-close">Fermer</button>
+          <button type="submit" class="btn">Réserver et payer</button>
+        </div>
+      </div>
+    </form>
+  </dialog>
+
+  <footer class="site-footer">
+    <div class="inner">
+      <span>© 2026 RivieraBoats — projet « Dév avec Docker »</span>
+      <span>Nice · Cannes · Antibes · Saint-Tropez · Monaco · Menton</span>
+    </div>
+  </footer>
+</body>
+</html>

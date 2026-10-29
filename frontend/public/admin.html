@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Administration — RivieraBoats</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/css/style.css">
+  <script type="module" src="/js/admin.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="inner">
+      <a class="brand" href="/">⚓ Riviera<span>Boats</span></a>
+      <nav class="nav" aria-label="Navigation principale"></nav>
+      <div class="user-box"></div>
+    </div>
+  </header>
+
+  <main>
+    <h1>Administration</h1>
+    <div class="tabs admin-tabs" role="tablist">
+      <button type="button" role="tab" aria-selected="true" data-panel="users">Comptes</button>
+      <button type="button" role="tab" aria-selected="false" data-panel="fleet">Flotte</button>
+      <button type="button" role="tab" aria-selected="false" data-panel="all-bookings">Réservations</button>
+    </div>
+
+    <section id="users" class="card">
+      <h2>Comptes</h2>
+      <p class="muted">Seuls les comptes standards peuvent être supprimés ; la suppression efface aussi leurs réservations.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Nom</th><th>Email</th><th>Rôle</th><th>Inscrit le</th><th></th></tr></thead>
+          <tbody id="users-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="fleet" class="card hidden">
+      <h2>Flotte</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Nom</th><th>Type</th><th>Port</th><th>Pers.</th><th>Prix / jour</th><th></th></tr></thead>
+          <tbody id="boats-body"></tbody>
+        </table>
+      </div>
+
+      <h2 class="section">Ajouter un bateau</h2>
+      <form id="boat-form" novalidate>
+        <div class="row">
+          <div class="field"><label for="n-name">Nom</label><input id="n-name" name="name" required minlength="2" maxlength="60"></div>
+          <div class="field"><label for="n-type">Type</label><select id="n-type" name="type" required></select></div>
+          <div class="field"><label for="n-port">Port</label><select id="n-port" name="portId" required></select></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="n-cap">Passagers</label><input id="n-cap" name="capacity" type="number" min="1" max="50" value="6" required></div>
+          <div class="field"><label for="n-len">Longueur (m)</label><input id="n-len" name="lengthM" type="number" min="1" step="0.1" value="8" required></div>
+          <div class="field"><label for="n-price">Prix / jour (€)</label><input id="n-price" name="pricePerDay" type="number" min="1" step="10" value="300" required></div>
+          <div class="field"><label for="n-license">Permis</label>
+            <select id="n-license" name="licenseRequired"><option value="true">Requis</option><option value="false">Sans permis</option></select>
+          </div>
+        </div>
+        <div class="field"><label for="n-desc">Description</label><textarea id="n-desc" name="description" rows="2" maxlength="500"></textarea></div>
+        <p class="form-error" role="alert"></p>
+        <button class="btn" type="submit">Ajouter</button>
+      </form>
+    </section>
+
+    <section id="all-bookings" class="card hidden">
+      <h2>Toutes les réservations</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Client</th><th>Bateau</th><th>Dates</th><th>Total</th><th>Statut</th></tr></thead>
+          <tbody id="bookings-body"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="inner">
+      <span>© 2026 RivieraBoats — projet « Dév avec Docker »</span>
+      <span>Nice · Cannes · Antibes · Saint-Tropez · Monaco · Menton</span>
+    </div>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mon compte — RivieraBoats</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/css/style.css">
+  <script type="module" src="/js/account.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="inner">
+      <a class="brand" href="/">⚓ Riviera<span>Boats</span></a>
+      <nav class="nav" aria-label="Navigation principale"></nav>
+      <div class="user-box"></div>
+    </div>
+  </header>
+
+  <main>
+    <h1>Mon compte</h1>
+    <div class="grid">
+      <section class="card profile">
+        <h2>Profil</h2>
+        <dl>
+          <dt>Nom</dt><dd id="p-name"></dd>
+          <dt>Email</dt><dd id="p-email"></dd>
+          <dt>Rôle</dt><dd id="p-role"></dd>
+          <dt>Membre depuis</dt><dd id="p-since"></dd>
+        </dl>
+      </section>
+
+      <section class="card danger-zone">
+        <h2>Supprimer mon compte</h2>
+        <p class="muted">Votre compte, vos sessions et toutes vos réservations seront définitivement effacés.</p>
+        <p class="hint hidden" id="admin-note">Un compte administrateur ne peut pas être supprimé depuis l'application.</p>
+        <button class="btn btn-danger" type="button" id="delete-account">Supprimer mon compte</button>
+      </section>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="inner">
+      <span>© 2026 RivieraBoats — projet « Dév avec Docker »</span>
+      <span>Nice · Cannes · Antibes · Saint-Tropez · Monaco · Menton</span>
+    </div>
+  </footer>
+</body>
+</html>

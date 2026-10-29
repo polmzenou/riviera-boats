@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mes réservations — RivieraBoats</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/css/style.css">
+  <script type="module" src="/js/bookings.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="inner">
+      <a class="brand" href="/">⚓ Riviera<span>Boats</span></a>
+      <nav class="nav" aria-label="Navigation principale"></nav>
+      <div class="user-box"></div>
+    </div>
+  </header>
+
+  <main>
+    <div class="page-head">
+      <div>
+        <h1>Mes réservations</h1>
+        <p class="muted">Payez, consultez ou annulez vos locations.</p>
+      </div>
+      <a class="btn" href="/boats.html">Nouvelle réservation</a>
+    </div>
+    <div id="booking-list" class="booking-list" aria-live="polite"></div>
+  </main>
+
+  <dialog id="pay-dialog" aria-labelledby="pay-title">
+    <form id="pay-form" novalidate>
+      <div class="dlg-head"><h2 id="pay-title">Paiement sécurisé</h2></div>
+      <div class="dlg-body">
+        <div class="summary" id="pay-summary"></div>
+        <div class="field">
+          <label for="p-holder">Titulaire de la carte</label>
+          <input id="p-holder" name="holder" autocomplete="cc-name" required>
+        </div>
+        <div class="field">
+          <label for="p-number">Numéro de carte</label>
+          <input id="p-number" name="cardNumber" inputmode="numeric" autocomplete="cc-number" placeholder="4242 4242 4242 4242" maxlength="23" required>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label for="p-expiry">Expiration</label>
+            <input id="p-expiry" name="expiry" placeholder="MM/AA" autocomplete="cc-exp" maxlength="5" required>
+          </div>
+          <div class="field">
+            <label for="p-cvc">Cryptogramme</label>
+            <input id="p-cvc" name="cvc" inputmode="numeric" autocomplete="cc-csc" maxlength="4" placeholder="123" required>
+          </div>
+        </div>
+        <p class="hint">Paiement simulé — carte acceptée : 4242 4242 4242 4242 · carte refusée : 4000 0000 0000 0002.</p>
+        <p class="form-error" role="alert"></p>
+        <div class="dlg-foot">
+          <button type="button" class="btn btn-ghost" id="pay-close">Plus tard</button>
+          <button type="submit" class="btn">Payer</button>
+        </div>
+      </div>
+    </form>
+  </dialog>
+
+  <footer class="site-footer">
+    <div class="inner">
+      <span>© 2026 RivieraBoats — projet « Dév avec Docker »</span>
+      <span>Nice · Cannes · Antibes · Saint-Tropez · Monaco · Menton</span>
+    </div>
+  </footer>
+</body>
+</html>
