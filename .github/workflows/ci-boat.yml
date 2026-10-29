@@ -1,0 +1,29 @@
+name: ci-boat
+
+on:
+  push:
+    branches: ["**"]
+    tags: ["v*"]
+    # les filtres paths ne s'appliquent pas aux tags : un tag v* relance tout
+    paths:
+      - services/boat-service/**
+      - .github/workflows/ci-boat.yml
+      - .github/workflows/_service.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pipeline:
+    uses: ./.github/workflows/_service.yml
+    with:
+      service: boat
+      context: services/boat-service
+      language: python
+    secrets: inherit

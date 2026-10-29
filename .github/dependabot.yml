@@ -1,0 +1,30 @@
+version: 2
+updates:
+  - package-ecosystem: docker
+    directories:
+      - /services/auth-service
+      - /services/boat-service
+      - /services/booking-service
+      - /frontend
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: npm
+    directories:
+      - /services/auth-service
+      - /services/booking-service
+    schedule:
+      interval: weekly
+    groups:
+      dev-dependencies:
+        dependency-type: development
+
+  - package-ecosystem: pip
+    directory: /services/boat-service
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

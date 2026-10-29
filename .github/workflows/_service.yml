@@ -1,0 +1,203 @@
+# lint -> test -> build-push -> scan, appelé par ci-<service>.yml
+name: service (réutilisable)
+
+on:
+  workflow_call:
+    inputs:
+      service:
+        description: "auth, boat, booking ou frontend"
+        type: string
+        required: true
+      context:
+        description: "Dossier du service"
+        type: string
+        required: true
+      language:
+        description: "node, python ou static"
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.context }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Hadolint
+        uses: hadolint/hadolint-action@06be81baf89a55ffd0e24b8f04a4185738dd3387 # v3.5.0
+        with:
+          dockerfile: ${{ inputs.context }}/Dockerfile
+          failure-threshold: warning
+
+      - name: Node 22
+        if: inputs.language == 'node'
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: ${{ inputs.context }}/package-lock.json
+      - name: ESLint
+        if: inputs.language == 'node'
+        run: |
+          npm ci
+          npm run lint
+
+      - name: Python 3.13
+        if: inputs.language == 'python'
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: ${{ inputs.context }}/requirements*.txt
+      - name: Ruff
+        if: inputs.language == 'python'
+        run: |
+          pip install -r requirements-dev.txt
+          ruff check .
+          ruff format --check .
+
+  test:
+    name: Tests
+    needs: lint
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.context }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Node 22
+        if: inputs.language == 'node'
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: ${{ inputs.context }}/package-lock.json
+      - name: Jest
+        if: inputs.language == 'node'
+        run: |
+          npm ci
+          npm test
+
+      - name: Python 3.13
+        if: inputs.language == 'python'
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: ${{ inputs.context }}/requirements*.txt
+      - name: Pytest
+        if: inputs.language == 'python'
+        run: |
+          pip install -r requirements-dev.txt
+          pytest --cov-report=xml
+
+      - name: Stage test du Dockerfile
+        if: inputs.language == 'static'
+        run: docker build --target test .
+
+      - name: Couverture
+        if: inputs.language != 'static'
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-${{ inputs.service }}
+          path: |
+            ${{ inputs.context }}/coverage/lcov.info
+            ${{ inputs.context }}/coverage.xml
+          if-no-files-found: ignore
+          retention-days: 14
+
+  build-push:
+    name: Build & push GHCR
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      image: ${{ steps.vars.outputs.image }}
+      digest: ${{ steps.build.outputs.digest }}
+    steps:
+      - uses: actions/checkout@v7
+
+      # le nom d'image doit être en minuscules
+      - name: Nom de l'image
+        id: vars
+        run: echo "image=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/riviera-${{ inputs.service }}" >> "$GITHUB_OUTPUT"
+
+      - uses: docker/setup-buildx-action@v4
+
+      - name: Login GHCR
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Tags
+        id: meta
+        uses: docker/metadata-action@v6
+        with:
+          images: ${{ steps.vars.outputs.image }}
+          tags: |
+            type=sha,prefix=sha-
+            type=ref,event=tag
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build & push
+        id: build
+        uses: docker/build-push-action@v7
+        with:
+          context: ${{ inputs.context }}
+          target: runtime
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha,scope=${{ inputs.service }}
+          cache-to: type=gha,mode=max,scope=${{ inputs.service }}
+
+  scan:
+    name: Scan
+    needs: build-push
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Trivy
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        env:
+          TRIVY_USERNAME: ${{ github.actor }}
+          TRIVY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          image-ref: ${{ needs.build-push.outputs.image }}@${{ needs.build-push.outputs.digest }}
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: "1"
+          format: table
+
+      - name: npm audit
+        if: inputs.language == 'node'
+        working-directory: ${{ inputs.context }}
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Python 3.13
+        if: inputs.language == 'python'
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+      - name: pip-audit
+        if: inputs.language == 'python'
+        working-directory: ${{ inputs.context }}
+        run: |
+          pip install pip-audit
+          pip-audit -r requirements.txt

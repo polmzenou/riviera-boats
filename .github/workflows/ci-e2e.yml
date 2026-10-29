@@ -1,0 +1,46 @@
+# stack complète + scripts/smoke-test.sh
+name: e2e
+
+on:
+  push:
+    branches: ["**"]
+    tags: ["v*"]
+    paths-ignore:
+      - "docs/**"
+      - "**.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  compose:
+    name: docker compose + smoke test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Secrets
+        run: bash scripts/gen-secrets.sh
+
+      - name: Démarrage
+        run: docker compose --env-file env/test.env up -d --build --wait --wait-timeout 240
+
+      - name: État
+        run: docker compose --env-file env/test.env ps
+
+      - name: Smoke test
+        run: bash scripts/smoke-test.sh
+
+      - name: Logs
+        if: failure()
+        run: docker compose --env-file env/test.env logs --no-color
+
+      - name: Nettoyage
+        if: always()
+        run: docker compose --env-file env/test.env down -v

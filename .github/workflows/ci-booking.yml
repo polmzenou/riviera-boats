@@ -1,0 +1,29 @@
+name: ci-booking
+
+on:
+  push:
+    branches: ["**"]
+    tags: ["v*"]
+    # les filtres paths ne s'appliquent pas aux tags : un tag v* relance tout
+    paths:
+      - services/booking-service/**
+      - .github/workflows/ci-booking.yml
+      - .github/workflows/_service.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pipeline:
+    uses: ./.github/workflows/_service.yml
+    with:
+      service: booking
+      context: services/booking-service
+      language: node
+    secrets: inherit
