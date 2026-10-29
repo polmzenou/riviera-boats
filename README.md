@@ -116,7 +116,6 @@ env/                      variables par environnement
 secrets/                  *.example (les vrais fichiers sont gitignorés)
 scripts/                  génération des secrets, test de fumée
 docs/RAPPORT.md           rapport du projet
-docs/DEMO.md              déroulé de la démonstration
 ```
 
 ## Crédits
