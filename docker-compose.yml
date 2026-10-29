@@ -1,0 +1,171 @@
+# docker compose --env-file env/test.env up -d --build
+name: riviera-${APP_ENV:-test}
+
+x-hardening: &hardening
+  read_only: true
+  cap_drop: [ALL]
+  security_opt: ["no-new-privileges:true"]
+  restart: unless-stopped
+  logging:
+    driver: json-file
+    options:
+      max-size: "10m"
+      max-file: "3"
+
+x-app: &app
+  init: true
+  tmpfs: [/tmp]
+  networks: [backend]
+  deploy:
+    resources:
+      limits:
+        cpus: "${SVC_CPUS:-0.50}"
+        memory: ${SVC_MEM:-256M}
+
+services:
+  db:
+    <<: *hardening
+    image: postgres:17-alpine
+    # lancé directement en postgres : l'entrypoint n'a pas besoin de root
+    user: postgres
+    environment:
+      POSTGRES_DB: riviera
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_root_password
+      AUTH_DB_PASSWORD_FILE: /run/secrets/auth_db_password
+      BOAT_DB_PASSWORD_FILE: /run/secrets/boat_db_password
+      BOOKING_DB_PASSWORD_FILE: /run/secrets/booking_db_password
+    secrets: [db_root_password, auth_db_password, boat_db_password, booking_db_password]
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    tmpfs:
+      - /var/run/postgresql
+      - /tmp
+    networks: [backend]
+    healthcheck:
+      # en TCP : pendant l'init, le serveur temporaire n'écoute que sur le socket
+      test: ["CMD", "pg_isready", "-h", "127.0.0.1", "-U", "postgres", "-d", "riviera"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 20s
+    deploy:
+      resources:
+        limits:
+          cpus: "${DB_CPUS:-1.0}"
+          memory: ${DB_MEM:-512M}
+
+  auth-service:
+    <<: [*hardening, *app]
+    build:
+      context: ./services/auth-service
+      target: runtime
+    image: ${REGISTRY:-ghcr.io/owner}/riviera-auth:${TAG:-local}
+    environment:
+      APP_ENV: ${APP_ENV:-test}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      TZ: Europe/Paris
+      DB_HOST: db
+      DB_NAME: riviera
+      DB_USER: auth_svc
+      DB_PASSWORD_FILE: /run/secrets/auth_db_password
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@rivieraboats.fr}
+      ADMIN_PASSWORD_FILE: /run/secrets/admin_password
+      INTERNAL_TOKEN_FILE: /run/secrets/internal_token
+      BOOKING_SERVICE_URL: http://booking-service:3001
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      SESSION_TTL_HOURS: ${SESSION_TTL_HOURS:-8}
+      SEED_DEMO_USERS: ${SEED_DEMO_USERS:-false}
+    secrets: [auth_db_password, admin_password, internal_token]
+    depends_on:
+      db:
+        condition: service_healthy
+
+  boat-service:
+    <<: [*hardening, *app]
+    build:
+      context: ./services/boat-service
+      target: runtime
+    image: ${REGISTRY:-ghcr.io/owner}/riviera-boat:${TAG:-local}
+    environment:
+      APP_ENV: ${APP_ENV:-test}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      DB_HOST: db
+      DB_NAME: riviera
+      DB_USER: boat_svc
+      DB_PASSWORD_FILE: /run/secrets/boat_db_password
+    secrets: [boat_db_password]
+    depends_on:
+      db:
+        condition: service_healthy
+
+  booking-service:
+    <<: [*hardening, *app]
+    build:
+      context: ./services/booking-service
+      target: runtime
+    image: ${REGISTRY:-ghcr.io/owner}/riviera-booking:${TAG:-local}
+    environment:
+      APP_ENV: ${APP_ENV:-test}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      TZ: Europe/Paris
+      DB_HOST: db
+      DB_NAME: riviera
+      DB_USER: booking_svc
+      DB_PASSWORD_FILE: /run/secrets/booking_db_password
+      INTERNAL_TOKEN_FILE: /run/secrets/internal_token
+      BOAT_SERVICE_URL: http://boat-service:8000
+      BOOKING_MAX_DAYS: ${BOOKING_MAX_DAYS:-14}
+    secrets: [booking_db_password, internal_token]
+    depends_on:
+      db:
+        condition: service_healthy
+      boat-service:
+        condition: service_healthy
+
+  frontend:
+    <<: *hardening
+    build:
+      context: ./frontend
+      target: runtime
+    image: ${REGISTRY:-ghcr.io/owner}/riviera-frontend:${TAG:-local}
+    ports:
+      - "${FRONT_PORT:-8080}:8080"
+    tmpfs: [/tmp]
+    networks: [frontend, backend]
+    depends_on:
+      auth-service:
+        condition: service_healthy
+      boat-service:
+        condition: service_healthy
+      booking-service:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: "${FRONT_CPUS:-0.25}"
+          memory: ${FRONT_MEM:-64M}
+
+# générés par scripts/gen-secrets.sh (non versionnés)
+secrets:
+  db_root_password:
+    file: ./secrets/db_root_password.txt
+  auth_db_password:
+    file: ./secrets/auth_db_password.txt
+  boat_db_password:
+    file: ./secrets/boat_db_password.txt
+  booking_db_password:
+    file: ./secrets/booking_db_password.txt
+  admin_password:
+    file: ./secrets/admin_password.txt
+  internal_token:
+    file: ./secrets/internal_token.txt
+
+volumes:
+  db-data:
+
+networks:
+  frontend:
+  backend:
+    internal: true
