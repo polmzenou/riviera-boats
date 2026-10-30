@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1.7
 # Stages : base (nginx + site), test (nginx -t + pas de JS/CSS inline), runtime
 
-FROM nginxinc/nginx-unprivileged:1.30-alpine AS base
+FROM nginxinc/nginx-unprivileged:1.31-alpine AS base
 # curl n'est pas utilisé (healthcheck avec le wget de busybox)
 USER 0
 RUN apk del --no-cache curl \
