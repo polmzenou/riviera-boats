@@ -21,7 +21,7 @@ FROM node:22-alpine AS runtime
 LABEL org.opencontainers.image.title="riviera-booking" \
       org.opencontainers.image.description="RivieraBoats - service de réservation (réservations, paiement simulé)" \
       org.opencontainers.image.licenses="MIT" \
-      org.opencontainers.image.source="https://github.com/owner/riviera-boats"
+      org.opencontainers.image.source="https://github.com/polmzenou/riviera-boats"
 
 ENV NODE_ENV=production \
     PORT=3001

@@ -24,7 +24,7 @@ FROM base AS runtime
 LABEL org.opencontainers.image.title="riviera-frontend" \
       org.opencontainers.image.description="RivieraBoats - interface web et reverse-proxy Nginx" \
       org.opencontainers.image.licenses="MIT" \
-      org.opencontainers.image.source="https://github.com/owner/riviera-boats"
+      org.opencontainers.image.source="https://github.com/polmzenou/riviera-boats"
 
 USER 101
 EXPOSE 8080

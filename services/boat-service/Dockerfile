@@ -25,7 +25,7 @@ FROM base AS runtime
 LABEL org.opencontainers.image.title="riviera-boat" \
       org.opencontainers.image.description="RivieraBoats - catalogue des bateaux et des ports (FastAPI)" \
       org.opencontainers.image.licenses="MIT" \
-      org.opencontainers.image.source="https://github.com/owner/riviera-boats"
+      org.opencontainers.image.source="https://github.com/polmzenou/riviera-boats"
 
 RUN groupadd --system --gid 10001 app \
  && useradd --system --uid 10001 --gid app --no-create-home --shell /usr/sbin/nologin app \
