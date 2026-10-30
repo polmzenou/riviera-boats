@@ -1,13 +1,13 @@
 # syntax=docker/dockerfile:1.7
 # Stages : deps (dépendances prod), test (lint + tests), runtime (image finale)
 
-FROM node:22-alpine AS deps
+FROM node:25-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN --mount=type=cache,target=/root/.npm \
     npm ci --omit=dev --ignore-scripts
 
-FROM node:22-alpine AS test
+FROM node:25-alpine AS test
 WORKDIR /app
 ENV NODE_ENV=test
 COPY package.json package-lock.json ./
@@ -16,7 +16,7 @@ RUN --mount=type=cache,target=/root/.npm \
 COPY . .
 RUN npm run lint && npm test
 
-FROM node:22-alpine AS runtime
+FROM node:25-alpine AS runtime
 
 LABEL org.opencontainers.image.title="riviera-booking" \
       org.opencontainers.image.description="RivieraBoats - service de réservation (réservations, paiement simulé)" \
